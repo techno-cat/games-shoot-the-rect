@@ -1,5 +1,5 @@
 /* global phina */
-/* 先にdefine.jsでphina.jsをグローバル領域に展開しておくこと */
+/* phina.jsをグローバル領域に展開しておくこと */
 
 phina.define( 'Enemy', {
     superClass: 'RectangleShape',
@@ -37,7 +37,6 @@ phina.define( 'Enemy', {
         this.level = params.level;
         this.alpha = 0.0;
         this.blinkDuration = 100;
-        this._hitAlert = false;
     },
     startMove: function (vy, duration, delay) {
         this.vy = vy;
@@ -78,45 +77,6 @@ phina.define( 'Enemy', {
              this.parent.onEnemyRemoved( this );
              this.remove();
          }, this );
-    },
-    startBlink: function () {
-        var duration = this.blinkDuration;
-        var t = this.tweeners.blink;
-        t.clear()
-         .call( function () {
-             this.alpha = 0.2;
-         }, this )
-         .fadeIn( duration, 'easeInOutQuad' )
-         .call( function () {
-             if ( duration !== this.blinkDuration ) {
-                 this.startBlink();
-             }
-         }, this )
-         .setLoop( true );
-    },
-    cancelBlink: function () {
-        var t = this.tweeners.blink;
-        t.clear()
-         .fadeIn( 500, 'easeInQuad' );
-    },
-    _accessor: {
-        hitAlert: {
-            get: function () {
-                return this._hitAlert;
-            },
-            set: function (flag) {
-                if ( this._hitAlert != flag ) {
-                    if ( flag ) {
-                        this.startBlink();
-                    }
-                    else {
-                        this.cancelBlink();
-                    }
-                }
-
-                this._hitAlert = flag;
-            }
-        }
     },
     _static: {
         defaults: {
