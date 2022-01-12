@@ -285,7 +285,8 @@ phina.define( 'MainScene', {
         else if ( this.state === MainScene.GAME_STATE.started ) {
             this.remainingTimeForNextEnemy -= app.deltaTime;
             if ( this.remainingTimeForNextEnemy < 0 ) {
-                if ( this.enemies.length < 3 ) {
+                const limit = 3 + (this.level / 3).floor();
+                if ( this.enemies.length < Math.min(limit, 10) ) {
                     this.addEnemy();
                 }
 
@@ -299,7 +300,7 @@ phina.define( 'MainScene', {
             }
         }
         else if ( this.state === MainScene.GAME_STATE.breakTime ) {
-            if ( this.enemies.length < 1 ) {
+            if ( this.enemies.length <= 1 ) {
                 this.state = MainScene.GAME_STATE.wait;
                 this.level++;
                 this.onLevelChanged();
@@ -423,7 +424,12 @@ phina.define( 'MainScene', {
         this._missiles.push( missile );
     },
     addEnemy: function () {
-        var width = (this.gridX.unit() * 1.5).floor()
+        var width = (this.gridX.unit() * 1.5).floor();
+        if ( 10 < this.level ) {
+            const tmp = Math.randint(10, Math.max(this.level, 20)) / 40.0;
+            width -= (this.gridX.unit() * tmp * tmp).floor();
+        }
+
         var enemy = Enemy( {
             level: this.level,
             stroke: this.fontColor,
@@ -435,18 +441,14 @@ phina.define( 'MainScene', {
         enemy.x = this.gridX.unit() * (i - 0.5);
         enemy.y = this.gridY.span(1);
 
-        var vx = 0, vy = 0, i = this.level;
-        if ( this.level <= 4 ) {
-            vy = 100 + (i + 20);
-        }
-        else if ( this.level <= 6 ) {
-            vy = 100 + Math.randint(i - 1, i) * 20;
-        }
-        else {
-            vy = 100 + Math.randint(i - 2, i) * 20;
+        var vy = 0;
+        vy = 100 + (Math.min(this.level, 8) * 15);
+        if ( 8 < this.level ) {
+            const limit = Math.min(this.level, 20);
+            vy += Math.randint(8, limit) * 5;
         }
 
-        const fadeInDuration = 1000 * (100 / vy);
+        const fadeInDuration = 800;
         enemy.startMove( vy, 1000, Math.max(100, fadeInDuration * 0.25) );
         enemy.fadeIn( fadeInDuration );
 
@@ -521,7 +523,7 @@ phina.main( function() {
     var app = GameApp( {
         startLabel: 'title',
         title: 'Shoot the Rect',
-        version: 'Ver.1.0.0',
+        version: 'Ver.1.1.0',
         fontColor: 'white',
         backgroundColor: 'black',
         backgroundImage: '',
