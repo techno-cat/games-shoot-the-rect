@@ -250,7 +250,7 @@ phina.define( 'MainScene', {
     },
     addLevelLabel: function () {
         var label = Label( {
-            text: 'Level '+ this.level,
+            text: 'LEVEL '+ this.level,
             fill: this.fontColor,
             stroke: null,
             fontSize: 32,
@@ -516,6 +516,159 @@ phina.define( 'MainScene', {
     }
 } );
 
+phina.define( 'ResultScene', {
+    superClass: 'DisplayScene',
+
+    init: function(params) {
+        params = (params || {}).$safe( ResultScene.defaults );
+        this.superInit(params);
+
+        var message = params.message.format(params);
+        this.fontColor = params.fontColor;
+        this.backgroundColor = params.backgroundColor;
+
+        this.fromJSON({
+            children: {
+                scoreText: {
+                    className: 'Label',
+                    arguments: {
+                        text: 'SCORE',
+                        fill: params.fontColor,
+                        stroke: null,
+                        fontSize: 32,
+                        align: 'right'
+                    },
+                    x: this.gridX.span(8) - 8,
+                    y: this.gridY.span(5) + 8,
+                },
+                scoreLabel: {
+                    className: 'Label',
+                    arguments: {
+                        text: params.score+'',
+                        fill: params.fontColor,
+                        stroke: null,
+                        fontSize: 60,
+                        align: 'left'
+                    },
+                    x: this.gridX.span(8) + 8,
+                    y: this.gridY.span(5),
+                },
+                levelText: {
+                    className: 'Label',
+                    arguments: {
+                        text: 'LEVEL',
+                        fill: params.fontColor,
+                        stroke: null,
+                        fontSize: 32,
+                        align: 'right'
+                    },
+                    x: this.gridX.span(8) - 8,
+                    y: this.gridY.span(3) + 8,
+                },
+                levelLabel: {
+                    className: 'Label',
+                    arguments: {
+                        text: params.level+'',
+                        fill: params.fontColor,
+                        stroke: null,
+                        fontSize: 60,
+                        align: 'left'
+                    },
+                    x: this.gridX.span(8) + 8,
+                    y: this.gridY.span(3),
+                },
+
+                messageLabel: {
+                    className: 'Label',
+                    arguments: {
+                        text: message,
+                        fill: params.fontColor,
+                        stroke: null,
+                        fontSize: 32,
+                    },
+                    x: this.gridX.center(),
+                    y: this.gridY.span(9),
+                },
+
+                shareButton: {
+                    className: 'phina.ui.Button',
+                    arguments: [{
+                        text: '★',
+                        width: 128,
+                        height: 128,
+                        fontColor: params.fontColor,
+                        fontSize: 50,
+                        cornerRadius: 64,
+                        fill: 'rgba(240, 240, 240, 0.5)',
+                        // stroke: '#aaa',
+                        // strokeWidth: 2,
+                    }],
+                    x: this.gridX.center(-3),
+                    y: this.gridY.span(12),
+                },
+                playButton: {
+                    className: 'phina.ui.Button',
+                    arguments: [{
+                        text: '▶',
+                        width: 128,
+                        height: 128,
+                        fontColor: params.fontColor,
+                        fontSize: 50,
+                        cornerRadius: 64,
+                        fill: 'rgba(240, 240, 240, 0.5)',
+                        // stroke: '#aaa',
+                        // strokeWidth: 2,
+                    }],
+                    x: this.gridX.center(3),
+                    y: this.gridY.span(12),
+
+                    interactive: true,
+                    onpush: function() {
+                        this.exit();
+                    }.bind(this),
+                },
+                presentsLabel: {
+                    className: 'Label',
+                    arguments: {
+                        text: 'Presented by Lazy Cat Works.',
+                        fill: params.fontColor,
+                        stroke: null,
+                        fontSize: 20,
+                    },
+                    x: this.gridX.center(),
+                    y: this.gridY.span(15),
+                },
+            }
+        });
+
+        if (params.exitType === 'touch') {
+            this.on('pointend', function() {
+                this.exit();
+            });
+        }
+
+        this.shareButton.onclick = function() {
+            var text = 'Level: {0}, Score: {1}\n{2}'.format(params.level, params.score, params.title);
+            var url = phina.social.Twitter.createURL({
+                text: text,
+                hashtags: params.hashtags,
+                url: params.url,
+            });
+            window.open(url, 'share window', 'width=480, height=320');
+        };
+    },
+    _static: {
+        defaults: {
+            score: 0,
+            level: 1,
+
+            message: 'Thank you for playing!',
+            hashtags: 'phina_js,game,javascript',
+            url: phina.global.location && phina.global.location.href,
+        },
+    },
+});
+
 // メイン処理
 phina.main( function() {
 
@@ -523,7 +676,7 @@ phina.main( function() {
     var app = GameApp( {
         startLabel: 'title',
         title: 'Shoot the Rect',
-        version: 'Ver.1.1.0',
+        version: 'Ver.1.1.1',
         fontColor: 'white',
         backgroundColor: 'black',
         backgroundImage: '',
